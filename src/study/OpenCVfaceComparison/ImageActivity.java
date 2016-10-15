@@ -14,7 +14,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -24,6 +23,7 @@ import org.opencv.objdetect.CascadeClassifier;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,14 +45,28 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	
 	private File mCascadeFile;
 	private CascadeClassifier mJavaDetector;
-	private float mRelativeFaceSizeMin = 0.095f;
-	private float mRelativeFaceSizeMax = 0.9f;
-	private int mAbsoluteFaceSizeMin = 0;
-	private int mAbsoluteFaceSizeMax = 0;
 	
-	private double threshold1 = 60;
-	private double threshold2 = 60;
-
+	private double scaleFactor = 1.1;
+	private int minNeighbors = 6;
+	private int flags = 2;
+	private int minSize = 0;
+	private SeekBar seekBar3;
+	private TextView seekBarValue3;
+	private boolean onProgressChanged = true;
+	
+	private Handler mHandler = new Handler();
+	private Runnable mRunnable= new Runnable(){
+        @Override
+        public void run(){	
+        	seekBar3.setMax(minSize);
+        	minSize = minSize / 6;
+        	seekBar3.setProgress(minSize);
+        	seekBarValue3.setText(String.valueOf(minSize));
+        	onProgressChanged = false;
+        	mHandler.removeCallbacks(mRunnable);
+        }
+    };
+    
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
@@ -88,7 +102,6 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					e.printStackTrace();
 					Log.e(TAG, "Failed to load cascade. Exception thrown: " + e);
 				}
-
 				mOpenCvCameraView.enableView();
 			}
 			break;
@@ -106,25 +119,31 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(R.layout.image_manipulations_surface_view_2);
+		setContentView(R.layout.image_manipulations_surface_view_4);
 		mOpenCvCameraView = (ScanTool) findViewById(R.id.image_activity_view);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		
 		TextView textViewName0 = (TextView)findViewById(R.id.textViewName0);
-		textViewName0.setText("Threshold1");
+		textViewName0.setText("ScaleFactor");
 		SeekBar seekBar0 = (SeekBar)findViewById(R.id.seekBar0);
-		seekBar0.setMax(200);
-		seekBar0.setProgress((int) threshold1);
+		seekBar0.setMax(30);
+		seekBar0.setProgress((int) (scaleFactor * 10));
 		final TextView seekBarValue0 = (TextView)findViewById(R.id.textViewStatus0);
-		seekBarValue0.setText(String.valueOf(threshold1));
+		seekBarValue0.setText(String.valueOf(scaleFactor));
 		seekBar0.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
 				// TODO Auto-generated method stub
-				seekBarValue0.setText(String.valueOf(progress));
-				threshold1 = progress;
+				if(progress <= 10){
+					seekBarValue0.setText(String.valueOf(1.1));
+					scaleFactor = 1.1f;
+					seekBar.setProgress(11);
+				}else{
+					seekBarValue0.setText(String.valueOf(progress / 10.0f));
+					scaleFactor = progress / 10.0f;
+				}
 			}
 
 			@Override
@@ -139,12 +158,12 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		});
 		
 		TextView textViewName1 = (TextView)findViewById(R.id.textViewName1);
-		textViewName1.setText("Threshold2");
+		textViewName1.setText("MinNeighbors");
 		SeekBar seekBar1 = (SeekBar)findViewById(R.id.seekBar1);
-		seekBar1.setMax(200);
-		seekBar1.setProgress((int) threshold2);
+		seekBar1.setMax(10);
+		seekBar1.setProgress(minNeighbors);
 		final TextView seekBarValue1 = (TextView)findViewById(R.id.textViewStatus1);
-		seekBarValue1.setText(String.valueOf(threshold2));
+		seekBarValue1.setText(String.valueOf(minNeighbors));
 		seekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
 			@Override
@@ -152,7 +171,69 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			boolean fromUser) {
 				// TODO Auto-generated method stub
 				seekBarValue1.setText(String.valueOf(progress));
-				threshold2 = progress;
+				minNeighbors = progress;
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+			}
+		});		
+
+		TextView textViewName2 = (TextView)findViewById(R.id.textViewName2);
+		textViewName2.setText("Flags");
+		SeekBar seekBar2 = (SeekBar)findViewById(R.id.seekBar2);
+		seekBar2.setMax(10);
+		seekBar2.setProgress(flags);
+		final TextView seekBarValue2 = (TextView)findViewById(R.id.textViewStatus2);
+		seekBarValue2.setText(String.valueOf(flags));
+		seekBar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+				// TODO Auto-generated method stub
+				seekBarValue2.setText(String.valueOf(progress));
+				flags = progress;
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+			}
+		});
+			
+		TextView textViewName3 = (TextView)findViewById(R.id.textViewName3);
+		textViewName3.setText("MinSize");
+		seekBar3 = (SeekBar)findViewById(R.id.seekBar3);
+		seekBarValue3 = (TextView)findViewById(R.id.textViewStatus3);
+		seekBarValue3.setText(String.valueOf(minSize));
+		seekBar3.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+				// TODO Auto-generated method stub
+				if(!onProgressChanged){
+					if(progress < 1){
+						seekBar3.setProgress(1);
+						seekBarValue3.setText(String.valueOf(1));
+						minSize = 1;
+					}else{
+						seekBarValue3.setText(String.valueOf(progress));
+						minSize = progress;
+					}
+				}
 			}
 
 			@Override
@@ -166,7 +247,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			}
 		});
 	}
-
+	
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -191,7 +272,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			onCameraViewStarted = false;
 			mResolutionList = mOpenCvCameraView.getResolutionList();
 			for(int i=0; i<mResolutionList.size(); i++) {
-				if(mResolutionList.get(i).width == 640) {
+				if(mResolutionList.get(i).width == 320) {
 					resolution = mResolutionList.get(i);
 					mOpenCvCameraView.setResolution(resolution);
 					resolution = mOpenCvCameraView.getResolution();
@@ -235,6 +316,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			resolution = mOpenCvCameraView.getResolution();
 			String caption = Integer.valueOf(resolution.width).toString() + "x" + Integer.valueOf(resolution.height).toString();
 			Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
+			onProgressChanged = true;
 		}
 		return true;
 	}
@@ -242,21 +324,15 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat rgba = inputFrame.rgba();
 
-		if (mAbsoluteFaceSizeMin == 0) {
-			int height = rgba.rows();
-			if (Math.round(height * mRelativeFaceSizeMin) > 0) {
-				mAbsoluteFaceSizeMin = Math.round(height * mRelativeFaceSizeMin);
-				mAbsoluteFaceSizeMax = Math.round(height * mRelativeFaceSizeMax);
-				if(mAbsoluteFaceSizeMax > height) {
-					mAbsoluteFaceSizeMax = height;
-				}
-			}
+		if(onProgressChanged){
+			minSize = inputFrame.rgba().rows();      	
+			mHandler.post(mRunnable);
 		}
-
+		
 		MatOfRect faces = new MatOfRect();
 		
-		mJavaDetector.detectMultiScale(rgba, faces, 1.1, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-                new Size(mAbsoluteFaceSizeMin, mAbsoluteFaceSizeMin), new Size(mAbsoluteFaceSizeMax, mAbsoluteFaceSizeMax));
+		mJavaDetector.detectMultiScale(rgba, faces, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+                new Size(minSize, minSize), new Size());
 
 		Rect[] facesArray = faces.toArray();
 		
