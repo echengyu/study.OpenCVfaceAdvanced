@@ -76,9 +76,19 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				
 				try {
 					// load cascade file from application resources
-					InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+					InputStream is;
+//					is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+//					is = getResources().openRawResource(R.raw.haarcascade_mcs_mouth);
+//					is = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
+					is = getResources().openRawResource(R.raw.haarcascade_mcs_lefteye);
+					
+		
+					
 					File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-					mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+//					mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+//					mCascadeFile = new File(cascadeDir, "haarcascade_mcs_mouth.xml");
+//					mCascadeFile = new File(cascadeDir, "haarcascade_mcs_nose.xml");
+					mCascadeFile = new File(cascadeDir, "haarcascade_mcs_lefteye.xml");
 					FileOutputStream os = new FileOutputStream(mCascadeFile);
 
 					byte[] buffer = new byte[4096];
