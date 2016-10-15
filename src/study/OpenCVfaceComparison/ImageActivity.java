@@ -11,17 +11,22 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.objdetect.CascadeClassifier;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.Config;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -29,6 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +60,11 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private TextView seekBarValue3;
 	private boolean onProgressChanged = true;
 	
+	private ImageView imageView0;
+	private Bitmap bt1;
+	private Bitmap bt3;
+	
+	/***
 	private Handler mHandler = new Handler();
 	private Runnable mRunnable= new Runnable(){
         @Override
@@ -66,6 +77,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
         	mHandler.removeCallbacks(mRunnable);
         }
     };
+    ***/
     
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -129,10 +141,12 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(R.layout.image_manipulations_surface_view_4);
+		setContentView(R.layout.comparison_view);
 		mOpenCvCameraView = (ScanTool) findViewById(R.id.image_activity_view);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		
+		
+		/***
 		TextView textViewName0 = (TextView)findViewById(R.id.textViewName0);
 		textViewName0.setText("ScaleFactor");
 		SeekBar seekBar0 = (SeekBar)findViewById(R.id.seekBar0);
@@ -256,6 +270,9 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				// TODO Auto-generated method stub
 			}
 		});
+		***/
+		
+		imageView0 = (ImageView)findViewById(R.id.imageView0);
 	}
 	
 	@Override
@@ -333,21 +350,43 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat rgba = inputFrame.rgba();
-
+		
+		/***
 		if(onProgressChanged){
 			minSize = inputFrame.rgba().rows();      	
 			mHandler.post(mRunnable);
 		}
+		***/
 		
-		MatOfRect faces = new MatOfRect();
+		Mat matPicture = new Mat();
+		bt1 = BitmapFactory.decodeResource(getResources(), R.drawable.face);
+		Utils.bitmapToMat(bt1, matPicture);
 		
-		mJavaDetector.detectMultiScale(rgba, faces, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-                new Size(minSize, minSize), new Size());
-
-		Rect[] facesArray = faces.toArray();
+//		Log.e("matPicture", String.valueOf(matPicture.cols()+", "+matPicture.rows()));		
+//		
+//		MatOfRect faces = new MatOfRect();
+//		
+//		mJavaDetector.detectMultiScale(matPicture, faces, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+//                new Size(minSize, minSize), new Size());
+//
+//		Rect[] facesArray = faces.toArray();
+//		
+//		for (int i = 0; i < facesArray.length; i++)
+//			Core.rectangle(matPicture, facesArray[i].tl(), facesArray[i].br(), new Scalar(255, 0, 255, 255), 3);
 		
-		for (int i = 0; i < facesArray.length; i++)
-			Core.rectangle(rgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(255, 0, 255, 255), 3);
+		bt3 = Bitmap.createBitmap(matPicture.cols(), matPicture.rows(), Config.RGB_565);
+		Utils.matToBitmap(matPicture, bt3);
+//		imageView0.setImageBitmap(bt3);
+		
+//		MatOfRect faces = new MatOfRect();
+//		
+//		mJavaDetector.detectMultiScale(rgba, faces, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+//                new Size(minSize, minSize), new Size());
+//
+//		Rect[] facesArray = faces.toArray();
+//		
+//		for (int i = 0; i < facesArray.length; i++)
+//			Core.rectangle(rgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(255, 0, 255, 255), 3);
 		
 		return rgba;
 	}
