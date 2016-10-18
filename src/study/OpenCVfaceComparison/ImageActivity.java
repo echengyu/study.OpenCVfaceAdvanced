@@ -50,9 +50,23 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private MenuItem[] mResolutionMenuItems;
 	
 	private File mCascadeFile;
+	
+	private File mCascadeFileFace;
+	private File mCascadeFileEye;
+	private File mCascadeFileNose;
+	private File mCascadeFileMouth;
+	
+	private CascadeClassifier mJavaDetectorFace;
+	private CascadeClassifier mJavaDetectorEye;  
+	private CascadeClassifier mJavaDetectorNose; 
+	private CascadeClassifier mJavaDetectorMouth;
+	
+	
+	
+	
 	private CascadeClassifier mJavaDetector;
 	
-	private double scaleFactor = 1.1;
+	private double scaleFactor = 2.0;
 	private int minNeighbors = 6;
 	private int flags = 2;
 	private int minSize = 0;
@@ -64,7 +78,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private Bitmap bt1;
 	private Bitmap bt3;
 	
-	/***
+	
 	private Handler mHandler = new Handler();
 	private Runnable mRunnable= new Runnable(){
         @Override
@@ -77,7 +91,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
         	mHandler.removeCallbacks(mRunnable);
         }
     };
-    ***/
+    
     
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -88,37 +102,95 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				
 				try {
 					// load cascade file from application resources
-					InputStream is;
-//					is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
-//					is = getResources().openRawResource(R.raw.haarcascade_mcs_mouth);
-//					is = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
-					is = getResources().openRawResource(R.raw.haarcascade_mcs_lefteye);
-					
-		
-					
-					File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-//					mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-//					mCascadeFile = new File(cascadeDir, "haarcascade_mcs_mouth.xml");
-//					mCascadeFile = new File(cascadeDir, "haarcascade_mcs_nose.xml");
-					mCascadeFile = new File(cascadeDir, "haarcascade_mcs_lefteye.xml");
-					FileOutputStream os = new FileOutputStream(mCascadeFile);
+					InputStream isFace 	= getResources().openRawResource(R.raw.lbpcascade_frontalface);
+					InputStream isEye 	= getResources().openRawResource(R.raw.haarcascade_eye);
+					InputStream isNose 	= getResources().openRawResource(R.raw.haarcascade_mcs_nose);
+					InputStream isMouth = getResources().openRawResource(R.raw.haarcascade_mcs_mouth);
 
-					byte[] buffer = new byte[4096];
+					File cascadeDirFace 	= getDir("cascade", Context.MODE_PRIVATE);
+					File cascadeDirEye 		= getDir("cascade", Context.MODE_PRIVATE);
+					File cascadeDirNose 	= getDir("cascade", Context.MODE_PRIVATE);
+					File cascadeDirMouth 	= getDir("cascade", Context.MODE_PRIVATE);
+
+					mCascadeFileFace 	= new File(cascadeDirFace, "lbpcascade_frontalface.xml");
+					mCascadeFileEye 	= new File(cascadeDirEye, "haarcascade_eye.xml");
+					mCascadeFileNose 	= new File(cascadeDirNose, "haarcascade_mcs_nose.xml");
+					mCascadeFileMouth	= new File(cascadeDirMouth, "haarcascade_mcs_mouth.xml");
+
+					FileOutputStream osFace  	= new FileOutputStream(mCascadeFileFace);
+					FileOutputStream osEye		= new FileOutputStream(mCascadeFileEye);
+					FileOutputStream osNose  	= new FileOutputStream(mCascadeFileNose);
+					FileOutputStream osMouth 	= new FileOutputStream(mCascadeFileMouth);
+					
+					byte[] buffer;
 					int bytesRead;
-					while ((bytesRead = is.read(buffer)) != -1) {
-						os.write(buffer, 0, bytesRead);
+					
+					buffer = new byte[4096];
+					bytesRead = 0;
+					while ((bytesRead = isFace.read(buffer)) != -1) {
+						osFace.write(buffer, 0, bytesRead);
 					}
-					is.close();
-					os.close();
-
-					mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
-					if (mJavaDetector.empty()) {
+					isFace.close();
+					osFace.close();
+					
+					buffer = new byte[4096];
+					bytesRead = 0;
+					while ((bytesRead = isEye.read(buffer)) != -1) {
+						osEye.write(buffer, 0, bytesRead);
+					}
+					isEye.close();
+					osEye.close();
+					
+					buffer = new byte[4096];
+					bytesRead = 0;
+					while ((bytesRead = isNose.read(buffer)) != -1) {
+						osNose.write(buffer, 0, bytesRead);
+					}
+					isNose.close();
+					osNose.close();
+					
+					buffer = new byte[4096];
+					bytesRead = 0;
+					while ((bytesRead = isMouth.read(buffer)) != -1) {
+						osMouth.write(buffer, 0, bytesRead);
+					}
+					isMouth.close();
+					osMouth.close();
+					
+					mJavaDetectorFace  	= new CascadeClassifier(mCascadeFileFace.getAbsolutePath());
+					mJavaDetectorEye  	= new CascadeClassifier(mCascadeFileEye.getAbsolutePath());
+					mJavaDetectorNose  	= new CascadeClassifier(mCascadeFileNose.getAbsolutePath());
+					mJavaDetectorMouth 	= new CascadeClassifier(mCascadeFileMouth.getAbsolutePath());
+					
+					if (mJavaDetectorFace.empty()) {
 						Log.e(TAG, "Failed to load cascade classifier");
 						mJavaDetector = null;
 					} else
-						Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
-
-					cascadeDir.delete();
+						Log.i(TAG, "Loaded cascade classifier from " + mCascadeFileFace.getAbsolutePath());
+					
+					if (mJavaDetectorEye.empty()) {
+						Log.e(TAG, "Failed to load cascade classifier");
+						mJavaDetector = null;
+					} else
+						Log.i(TAG, "Loaded cascade classifier from " + mCascadeFileEye.getAbsolutePath());
+					
+					if (mJavaDetectorNose.empty()) {
+						Log.e(TAG, "Failed to load cascade classifier");
+						mJavaDetector = null;
+					} else
+						Log.i(TAG, "Loaded cascade classifier from " + mCascadeFileNose.getAbsolutePath());
+					
+					if (mJavaDetectorMouth.empty()) {
+						Log.e(TAG, "Failed to load cascade classifier");
+						mJavaDetector = null;
+					} else
+						Log.i(TAG, "Loaded cascade classifier from " + mCascadeFileMouth.getAbsolutePath());
+				
+					cascadeDirFace.delete();
+					cascadeDirEye.delete(); 	
+					cascadeDirNose.delete(); 
+					cascadeDirMouth.delete();
+					
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -141,16 +213,16 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(R.layout.comparison_view);
+		setContentView(R.layout.image_manipulations_surface_view_4);
 		mOpenCvCameraView = (ScanTool) findViewById(R.id.image_activity_view);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		
 		
-		/***
+		
 		TextView textViewName0 = (TextView)findViewById(R.id.textViewName0);
 		textViewName0.setText("ScaleFactor");
 		SeekBar seekBar0 = (SeekBar)findViewById(R.id.seekBar0);
-		seekBar0.setMax(30);
+		seekBar0.setMax(100);
 		seekBar0.setProgress((int) (scaleFactor * 10));
 		final TextView seekBarValue0 = (TextView)findViewById(R.id.textViewStatus0);
 		seekBarValue0.setText(String.valueOf(scaleFactor));
@@ -270,7 +342,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				// TODO Auto-generated method stub
 			}
 		});
-		***/
+		
 		
 		imageView0 = (ImageView)findViewById(R.id.imageView0);
 	}
@@ -299,7 +371,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			onCameraViewStarted = false;
 			mResolutionList = mOpenCvCameraView.getResolutionList();
 			for(int i=0; i<mResolutionList.size(); i++) {
-				if(mResolutionList.get(i).width == 320) {
+				if(mResolutionList.get(i).width == 640) {
 					resolution = mResolutionList.get(i);
 					mOpenCvCameraView.setResolution(resolution);
 					resolution = mOpenCvCameraView.getResolution();
@@ -350,17 +422,19 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat rgba = inputFrame.rgba();
+//		Mat gray = inputFrame.gray();
+		Mat gray = inputFrame.rgba();
 		
-		/***
+		
 		if(onProgressChanged){
 			minSize = inputFrame.rgba().rows();      	
 			mHandler.post(mRunnable);
 		}
-		***/
 		
-		Mat matPicture = new Mat();
-		bt1 = BitmapFactory.decodeResource(getResources(), R.drawable.face);
-		Utils.bitmapToMat(bt1, matPicture);
+		
+//		Mat matPicture = new Mat();
+//		bt1 = BitmapFactory.decodeResource(getResources(), R.drawable.face);
+//		Utils.bitmapToMat(bt1, matPicture);
 		
 //		Log.e("matPicture", String.valueOf(matPicture.cols()+", "+matPicture.rows()));		
 //		
@@ -374,19 +448,49 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //		for (int i = 0; i < facesArray.length; i++)
 //			Core.rectangle(matPicture, facesArray[i].tl(), facesArray[i].br(), new Scalar(255, 0, 255, 255), 3);
 		
-		bt3 = Bitmap.createBitmap(matPicture.cols(), matPicture.rows(), Config.RGB_565);
-		Utils.matToBitmap(matPicture, bt3);
+//		bt3 = Bitmap.createBitmap(matPicture.cols(), matPicture.rows(), Config.RGB_565);
+//		Utils.matToBitmap(matPicture, bt3);
 //		imageView0.setImageBitmap(bt3);
 		
-//		MatOfRect faces = new MatOfRect();
-//		
-//		mJavaDetector.detectMultiScale(rgba, faces, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-//                new Size(minSize, minSize), new Size());
-//
-//		Rect[] facesArray = faces.toArray();
-//		
-//		for (int i = 0; i < facesArray.length; i++)
-//			Core.rectangle(rgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(255, 0, 255, 255), 3);
+		MatOfRect matOfRectTmp;
+		Rect[] rectArrayTmp;
+		int width;
+		int height;
+			
+		// scaleFactor, minNeighbors, flags
+		matOfRectTmp = new MatOfRect();
+		mJavaDetectorFace.detectMultiScale(gray, matOfRectTmp, 2.0, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+                new Size(100, 100), new Size(450, 450));
+		rectArrayTmp = matOfRectTmp.toArray();		
+		for (int i = 0; i < rectArrayTmp.length; i++){
+			Core.rectangle(rgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
+			
+			width = rectArrayTmp[i].width;
+			height = rectArrayTmp[i].height;
+			
+		
+			matOfRectTmp = new MatOfRect();
+			mJavaDetectorEye.detectMultiScale(gray, matOfRectTmp, 3.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+	                new Size(30, 30), new Size(width, height));
+			rectArrayTmp = matOfRectTmp.toArray();		
+			for (int j = 0; j < rectArrayTmp.length; j++)
+				Core.rectangle(rgba, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 0, 255, 255), 3);
+			
+			matOfRectTmp = new MatOfRect();
+			mJavaDetectorNose.detectMultiScale(gray, matOfRectTmp, 6.0, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+	                new Size(40, 40), new Size(width, height));
+			rectArrayTmp = matOfRectTmp.toArray();		
+			for (int j = 0; j < rectArrayTmp.length; j++)
+				Core.rectangle(rgba, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 255, 0, 255), 3);
+			
+			matOfRectTmp = new MatOfRect();
+			mJavaDetectorMouth.detectMultiScale(gray, matOfRectTmp, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+	                new Size(40, 20), new Size(width, height));
+			rectArrayTmp = matOfRectTmp.toArray();		
+			for (int j = 0; j < rectArrayTmp.length; j++)
+				Core.rectangle(rgba, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(255, 0, 0, 255), 3);
+		
+		}
 		
 		return rgba;
 	}

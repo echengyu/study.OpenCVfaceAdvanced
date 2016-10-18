@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -145,7 +145,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:text="status3"
-
                     android:textSize="14sp" />
 
 				<android.widget.VerticalSeekBar
@@ -170,11 +169,5 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         opencv:show_fps="true" />
-
-    <ImageView
-        android:id="@+id/imageView0"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
 
 </LinearLayout>
