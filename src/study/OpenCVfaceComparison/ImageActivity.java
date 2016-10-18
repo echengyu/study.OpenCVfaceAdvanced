@@ -15,6 +15,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -421,9 +422,9 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	}
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		Mat rgba = inputFrame.rgba();
+		Mat mRgba = inputFrame.rgba();
 //		Mat gray = inputFrame.gray();
-		Mat gray = inputFrame.rgba();
+		Mat dRgba = inputFrame.rgba();
 		
 		
 		if(onProgressChanged){
@@ -456,42 +457,94 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		Rect[] rectArrayTmp;
 		int width;
 		int height;
+		int x;
+		int y;
 			
 		// scaleFactor, minNeighbors, flags
 		matOfRectTmp = new MatOfRect();
-		mJavaDetectorFace.detectMultiScale(gray, matOfRectTmp, 2.0, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+		mJavaDetectorFace.detectMultiScale(dRgba, matOfRectTmp, 2.0, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
                 new Size(100, 100), new Size(450, 450));
 		rectArrayTmp = matOfRectTmp.toArray();		
-		for (int i = 0; i < rectArrayTmp.length; i++){
-			Core.rectangle(rgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
-			
-			width = rectArrayTmp[i].width;
-			height = rectArrayTmp[i].height;
-			
+//		for (int i = 0; i < rectArrayTmp.length; i++){
 		
-			matOfRectTmp = new MatOfRect();
-			mJavaDetectorEye.detectMultiScale(gray, matOfRectTmp, 3.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-	                new Size(30, 30), new Size(width, height));
-			rectArrayTmp = matOfRectTmp.toArray();		
-			for (int j = 0; j < rectArrayTmp.length; j++)
-				Core.rectangle(rgba, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 0, 255, 255), 3);
-			
-			matOfRectTmp = new MatOfRect();
-			mJavaDetectorNose.detectMultiScale(gray, matOfRectTmp, 6.0, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-	                new Size(40, 40), new Size(width, height));
-			rectArrayTmp = matOfRectTmp.toArray();		
-			for (int j = 0; j < rectArrayTmp.length; j++)
-				Core.rectangle(rgba, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 255, 0, 255), 3);
-			
-			matOfRectTmp = new MatOfRect();
-			mJavaDetectorMouth.detectMultiScale(gray, matOfRectTmp, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-	                new Size(40, 20), new Size(width, height));
-			rectArrayTmp = matOfRectTmp.toArray();		
-			for (int j = 0; j < rectArrayTmp.length; j++)
-				Core.rectangle(rgba, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(255, 0, 0, 255), 3);
+		if(rectArrayTmp.length > 0){
 		
+			for (int i = 0; i < 1; i++){
+				
+				Core.rectangle(mRgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
+				
+				x = rectArrayTmp[i].x;
+				y = rectArrayTmp[i].y;
+				width = rectArrayTmp[i].width;
+				height = rectArrayTmp[i].height;
+				Log.e("rectArrayTmp["+i+"]", String.valueOf(x+", "+y+", "+width+", "+height));
+				
+				Mat matDraw = new Mat();
+				Mat matRoiMaster = new Mat();
+				Mat matRoiNose = new Mat();
+				Mat matRoiMouth = new Mat();
+				
+				Rect rectRoiMaster = new Rect(x, y, width, height);
+				
+				Rect rectRoiNose = new Rect(
+						(int) (x + (width * 0.0))	, (int) (y + (height * 0.0)),
+						(int) (width * 1.0)			, (int) (height * 1.0));				
+				
+				Rect rectRoiMouth = new Rect(
+						(int) (x + (width * 0.2))	, (int) (y + (height * 0.7)),
+						(int) (width * 0.6)			, (int) (height * 0.3));
+				
+				
+				
+				
+				
+				dRgba.submat(rectRoiMaster).copyTo(matDraw);
+				dRgba.submat(rectRoiNose).copyTo(matRoiNose);
+				dRgba.submat(rectRoiMouth).copyTo(matRoiMouth);
+				
+				Imgproc.cvtColor(matRoiNose, matRoiNose, Imgproc.COLOR_RGBA2GRAY);
+				Imgproc.Canny(matRoiNose, matRoiNose, 128, 255, 3, false);
+				Imgproc.cvtColor(matRoiNose, matRoiNose, Imgproc.COLOR_GRAY2RGBA);
+				
+			
+				matOfRectTmp = new MatOfRect();
+				mJavaDetectorEye.detectMultiScale(matRoiMaster, matOfRectTmp, 3.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+		                new Size(30, 30), new Size(width, height));
+				rectArrayTmp = matOfRectTmp.toArray();		
+				if(rectArrayTmp.length == 2)
+					for (int j = 0; j < 2; j++)
+						Core.rectangle(matDraw, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 0, 255, 255), 3);
+				
+				
+				
+//				matOfRectTmp = new MatOfRect();
+//				mJavaDetectorNose.detectMultiScale(matRoiMaster, matOfRectTmp, 5.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+//		                new Size(30, 30), new Size(width, height));
+//				rectArrayTmp = matOfRectTmp.toArray();		
+//				if(rectArrayTmp.length != 0)
+//					for (int j = 0; j < 1; j++)
+//						Core.rectangle(matDraw, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 255, 0, 255), 3);
+					
+				
+				matOfRectTmp = new MatOfRect();
+				mJavaDetectorMouth.detectMultiScale(matRoiMouth, matOfRectTmp, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+		                new Size(height*0.1, height*0.1), new Size(height*0.7, height*0.7));
+				rectArrayTmp = matOfRectTmp.toArray();		
+				if(rectArrayTmp.length != 0)
+					for (int j = 0; j < 1; j++)
+//						Core.rectangle(matDraw, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(255, 0, 0, 255), 3);
+						Core.rectangle(matDraw, 
+								new Point((rectArrayTmp[j].tl().x + (width * 0.2)), (rectArrayTmp[j].tl().y + (height * 0.7))),
+								new Point((rectArrayTmp[j].br().x + (width * 0.2)), (rectArrayTmp[j].br().y + (height * 0.7))),
+								new Scalar(255, 0, 0, 255), 3);
+				
+				matRoiNose.copyTo(mRgba.submat(rectRoiNose));
+				matRoiMouth.copyTo(mRgba.submat(rectRoiMouth));
+				matDraw.copyTo(mRgba.submat(rectRoiMaster));
+			}
+			
 		}
 		
-		return rgba;
+		return mRgba;
 	}
 }
