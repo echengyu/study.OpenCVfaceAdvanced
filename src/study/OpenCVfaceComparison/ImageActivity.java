@@ -79,7 +79,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private Bitmap bt1;
 	private Bitmap bt3;
 	
-	
+	/*
 	private Handler mHandler = new Handler();
 	private Runnable mRunnable= new Runnable(){
         @Override
@@ -92,7 +92,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
         	mHandler.removeCallbacks(mRunnable);
         }
     };
-    
+    */
     
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -214,12 +214,12 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(R.layout.image_manipulations_surface_view_4);
-		mOpenCvCameraView = (ScanTool) findViewById(R.id.image_activity_view);
+		setContentView(R.layout.picture_view);
+		mOpenCvCameraView = (ScanTool) findViewById(R.id.picture_view0);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		
 		
-		
+		/*
 		TextView textViewName0 = (TextView)findViewById(R.id.textViewName0);
 		textViewName0.setText("ScaleFactor");
 		SeekBar seekBar0 = (SeekBar)findViewById(R.id.seekBar0);
@@ -343,9 +343,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				// TODO Auto-generated method stub
 			}
 		});
-		
-		
-		imageView0 = (ImageView)findViewById(R.id.imageView0);
+		*/
 	}
 	
 	@Override
@@ -423,14 +421,14 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat mRgba = inputFrame.rgba();
-//		Mat gray = inputFrame.gray();
 		Mat dRgba = inputFrame.rgba();
 		
-		
+		/*
 		if(onProgressChanged){
 			minSize = inputFrame.rgba().rows();      	
 			mHandler.post(mRunnable);
 		}
+		*/
 		
 		
 //		Mat matPicture = new Mat();
@@ -454,7 +452,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //		imageView0.setImageBitmap(bt3);
 		
 		MatOfRect matOfRectTmp;
-		Rect[] rectArrayTmp;
+		Rect[] rectArrayFace;
 		int width;
 		int height;
 		int x;
@@ -464,19 +462,17 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		matOfRectTmp = new MatOfRect();
 		mJavaDetectorFace.detectMultiScale(dRgba, matOfRectTmp, 2.0, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
                 new Size(100, 100), new Size(450, 450));
-		rectArrayTmp = matOfRectTmp.toArray();		
+		rectArrayFace = matOfRectTmp.toArray();		
 //		for (int i = 0; i < rectArrayTmp.length; i++){
 		
-		if(rectArrayTmp.length != 0){
+		if(rectArrayFace.length != 0){
 		
 			for (int i = 0; i < 1; i++){
 				
-//				Core.rectangle(mRgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
-				
-				x = rectArrayTmp[i].x;
-				y = rectArrayTmp[i].y;
-				width = rectArrayTmp[i].width;
-				height = rectArrayTmp[i].height;
+				x = rectArrayFace[i].x;
+				y = rectArrayFace[i].y;
+				width = rectArrayFace[i].width;
+				height = rectArrayFace[i].height;
 				Log.e("rectArrayTmp["+i+"]", String.valueOf(x+", "+y+", "+width+", "+height));
 				
 				boolean findEye = true;
@@ -487,6 +483,8 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				Mat matRoiEye = new Mat();
 				Mat matRoiNose = new Mat();
 				Mat matRoiMouth = new Mat();
+				
+				Rect[] rectArrayTmp;
 				
 				Rect rectRoiMaster = new Rect(x, y, width, height);
 				
@@ -503,13 +501,11 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 						(int) (width * 0.6)			, (int) (height * 0.3));
 				
 				
-				
-				
-				
 				dRgba.submat(rectRoiMaster).copyTo(matDraw);
 				dRgba.submat(rectRoiEye).copyTo(matRoiEye);
 				dRgba.submat(rectRoiNose).copyTo(matRoiNose);
 				dRgba.submat(rectRoiMouth).copyTo(matRoiMouth);
+				
 				
 //				Imgproc.cvtColor(matRoiEye, matRoiEye, Imgproc.COLOR_RGBA2GRAY);
 //				Imgproc.Canny(matRoiEye, matRoiEye, 128, 255, 3, false);
@@ -567,11 +563,14 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //				matRoiEye.copyTo(mRgba.submat(rectRoiEye));
 //				matRoiNose.copyTo(mRgba.submat(rectRoiNose));
 //				matRoiMouth.copyTo(mRgba.submat(rectRoiMouth));
-				matDraw.copyTo(mRgba.submat(rectRoiMaster));
+//				matDraw.copyTo(mRgba.submat(rectRoiMaster));
 				
-				Core.rectangle(mRgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
+				
+				if(findEye && findNose && findMouth){
+					matDraw.copyTo(mRgba.submat(rectRoiMaster));
+					Core.rectangle(mRgba, rectArrayFace[i].tl(), rectArrayFace[i].br(), new Scalar(255, 0, 255, 255), 3);
+				}
 			}
-			
 		}
 		
 		return mRgba;
