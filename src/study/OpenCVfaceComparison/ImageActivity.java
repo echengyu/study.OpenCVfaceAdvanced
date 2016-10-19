@@ -467,11 +467,11 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		rectArrayTmp = matOfRectTmp.toArray();		
 //		for (int i = 0; i < rectArrayTmp.length; i++){
 		
-		if(rectArrayTmp.length > 0){
+		if(rectArrayTmp.length != 0){
 		
 			for (int i = 0; i < 1; i++){
 				
-				Core.rectangle(mRgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
+//				Core.rectangle(mRgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
 				
 				x = rectArrayTmp[i].x;
 				y = rectArrayTmp[i].y;
@@ -479,16 +479,24 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				height = rectArrayTmp[i].height;
 				Log.e("rectArrayTmp["+i+"]", String.valueOf(x+", "+y+", "+width+", "+height));
 				
+				boolean findEye = true;
+				boolean findNose = true;
+				boolean findMouth = true;				
+				
 				Mat matDraw = new Mat();
-				Mat matRoiMaster = new Mat();
+				Mat matRoiEye = new Mat();
 				Mat matRoiNose = new Mat();
 				Mat matRoiMouth = new Mat();
 				
 				Rect rectRoiMaster = new Rect(x, y, width, height);
 				
+				Rect rectRoiEye = new Rect(
+						(int) (x + (width * 0.0))	, (int) (y + (height * 0.25)),
+						(int) (width * 1.0)			, (int) (height * 0.35));
+				
 				Rect rectRoiNose = new Rect(
-						(int) (x + (width * 0.0))	, (int) (y + (height * 0.0)),
-						(int) (width * 1.0)			, (int) (height * 1.0));				
+						(int) (x + (width * 0.0))	, (int) (y + (height * 0.2)),
+						(int) (width * 1.0)			, (int) (height * 0.5));				
 				
 				Rect rectRoiMouth = new Rect(
 						(int) (x + (width * 0.2))	, (int) (y + (height * 0.7)),
@@ -499,48 +507,69 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				
 				
 				dRgba.submat(rectRoiMaster).copyTo(matDraw);
+				dRgba.submat(rectRoiEye).copyTo(matRoiEye);
 				dRgba.submat(rectRoiNose).copyTo(matRoiNose);
 				dRgba.submat(rectRoiMouth).copyTo(matRoiMouth);
 				
-				Imgproc.cvtColor(matRoiNose, matRoiNose, Imgproc.COLOR_RGBA2GRAY);
-				Imgproc.Canny(matRoiNose, matRoiNose, 128, 255, 3, false);
-				Imgproc.cvtColor(matRoiNose, matRoiNose, Imgproc.COLOR_GRAY2RGBA);
+//				Imgproc.cvtColor(matRoiEye, matRoiEye, Imgproc.COLOR_RGBA2GRAY);
+//				Imgproc.Canny(matRoiEye, matRoiEye, 128, 255, 3, false);
+//				Imgproc.cvtColor(matRoiEye, matRoiEye, Imgproc.COLOR_GRAY2RGBA);
 				
 			
 				matOfRectTmp = new MatOfRect();
-				mJavaDetectorEye.detectMultiScale(matRoiMaster, matOfRectTmp, 3.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+				mJavaDetectorEye.detectMultiScale(matRoiEye, matOfRectTmp, 3.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(30, 30), new Size(width, height));
 				rectArrayTmp = matOfRectTmp.toArray();		
-				if(rectArrayTmp.length == 2)
+				if(rectArrayTmp.length == 2){
 					for (int j = 0; j < 2; j++)
-						Core.rectangle(matDraw, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 0, 255, 255), 3);
+						Core.rectangle(matDraw, 
+								new Point((rectArrayTmp[j].tl().x + (width * 0.0)), (rectArrayTmp[j].tl().y + (height * 0.25))),
+								new Point((rectArrayTmp[j].br().x + (width * 0.0)), (rectArrayTmp[j].br().y + (height * 0.25))),
+								new Scalar(0, 0, 255, 255), 3);
+				}else{
+					findEye = false;
+					Log.e("DetectorEye", "Not find eye");
+				}
 				
 				
+				matOfRectTmp = new MatOfRect();
+				mJavaDetectorNose.detectMultiScale(matRoiNose, matOfRectTmp, 5.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+		                new Size(30, 30), new Size(width, height));
+				rectArrayTmp = matOfRectTmp.toArray();		
+				if(rectArrayTmp.length != 0){
+					for (int j = 0; j < 1; j++)
+						Core.rectangle(matDraw, 
+								new Point((rectArrayTmp[j].tl().x + (width * 0.0)), (rectArrayTmp[j].tl().y + (height * 0.2))),
+								new Point((rectArrayTmp[j].br().x + (width * 0.0)), (rectArrayTmp[j].br().y + (height * 0.2))),
+								new Scalar(0, 255, 0, 255), 3);	
+				}else{
+					findNose = false;
+					Log.e("DetectorNose", "Not find nose");
+				}
 				
-//				matOfRectTmp = new MatOfRect();
-//				mJavaDetectorNose.detectMultiScale(matRoiMaster, matOfRectTmp, 5.0, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-//		                new Size(30, 30), new Size(width, height));
-//				rectArrayTmp = matOfRectTmp.toArray();		
-//				if(rectArrayTmp.length != 0)
-//					for (int j = 0; j < 1; j++)
-//						Core.rectangle(matDraw, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(0, 255, 0, 255), 3);
-					
 				
 				matOfRectTmp = new MatOfRect();
 				mJavaDetectorMouth.detectMultiScale(matRoiMouth, matOfRectTmp, scaleFactor, minNeighbors, flags, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(height*0.1, height*0.1), new Size(height*0.7, height*0.7));
 				rectArrayTmp = matOfRectTmp.toArray();		
-				if(rectArrayTmp.length != 0)
+				if(rectArrayTmp.length != 0){
 					for (int j = 0; j < 1; j++)
-//						Core.rectangle(matDraw, rectArrayTmp[j].tl(), rectArrayTmp[j].br(), new Scalar(255, 0, 0, 255), 3);
 						Core.rectangle(matDraw, 
 								new Point((rectArrayTmp[j].tl().x + (width * 0.2)), (rectArrayTmp[j].tl().y + (height * 0.7))),
 								new Point((rectArrayTmp[j].br().x + (width * 0.2)), (rectArrayTmp[j].br().y + (height * 0.7))),
 								new Scalar(255, 0, 0, 255), 3);
+				}else{
+					findMouth = false;
+					Log.e("DetectorMouth", "Not find mouth");
+				}
 				
-				matRoiNose.copyTo(mRgba.submat(rectRoiNose));
-				matRoiMouth.copyTo(mRgba.submat(rectRoiMouth));
+				
+//				matRoiEye.copyTo(mRgba.submat(rectRoiEye));
+//				matRoiNose.copyTo(mRgba.submat(rectRoiNose));
+//				matRoiMouth.copyTo(mRgba.submat(rectRoiMouth));
 				matDraw.copyTo(mRgba.submat(rectRoiMaster));
+				
+				Core.rectangle(mRgba, rectArrayTmp[i].tl(), rectArrayTmp[i].br(), new Scalar(255, 0, 255, 255), 3);
 			}
 			
 		}
