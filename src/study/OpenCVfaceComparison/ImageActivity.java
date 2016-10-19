@@ -50,8 +50,6 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private SubMenu mResolutionMenu;
 	private MenuItem[] mResolutionMenuItems;
 	
-	private File mCascadeFile;
-	
 	private File mCascadeFileFace;
 	private File mCascadeFileEye;
 	private File mCascadeFileNose;
@@ -73,6 +71,8 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private ImageView imageView0;
 	private Bitmap bt1;
 	private Bitmap bt3;
+	
+	private TextView textView0, textView1, textView2, textView3, textView4, textView5;
 	
 	/*
 	private Handler mHandler = new Handler();
@@ -213,6 +213,22 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView = (ScanTool) findViewById(R.id.picture_view0);
 		mOpenCvCameraView.setCameraIndex(1);
 		mOpenCvCameraView.setCvCameraViewListener(this);
+		
+		imageView0 = (ImageView) findViewById(R.id.imageView0);
+		textView0 = (TextView) findViewById(R.id.textView0);
+		textView1 = (TextView) findViewById(R.id.textView1);
+		textView2 = (TextView) findViewById(R.id.textView2);
+		textView3 = (TextView) findViewById(R.id.textView3);
+		textView4 = (TextView) findViewById(R.id.textView4);
+		textView5 = (TextView) findViewById(R.id.textView5);
+		
+		imageView0.setImageResource(R.drawable.why);
+		textView0.setText("0");
+		textView1.setText("1");
+		textView2.setText("2");
+		textView3.setText("3");
+		textView4.setText("4");
+		textView5.setText("5");
 		
 		
 		/*
@@ -550,7 +566,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					Log.e("DetectorEye", "Not find eye");
 				}
 				
-				
+				/*
 				matOfRectTmp = new MatOfRect();
 				mJavaDetectorNose.detectMultiScale(matRoiNose, matOfRectTmp, 1.2, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(height * 0.2, height * 0.2), new Size(width, height));
@@ -569,8 +585,10 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				}else{
 					findNose = false;
 					Log.e("DetectorNose", "Not find nose");
-				}			
+				}	
+				*/
 				
+				/*
 				matOfRectTmp = new MatOfRect();
 				mJavaDetectorMouth.detectMultiScale(matRoiMouth, matOfRectTmp, 1.6, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(height * 0.05, height * 0.05), new Size(height * 0.7, height * 0.7));
@@ -590,6 +608,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					findMouth = false;
 					Log.e("DetectorMouth", "Not find mouth");
 				}
+				*/
 				
 				
 //				matRoiEye.copyTo(mRgba.submat(rectRoiEye));
