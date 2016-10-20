@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -19,6 +21,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.objdetect.CascadeClassifier;
@@ -29,6 +32,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.Config;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -505,7 +509,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				
 				Rect[] rectArrayTmp;
 				
-				Rect rectRoiMaster = new Rect(x, y, width, height);
+				final Rect rectRoiMaster = new Rect(x, y, width, height);
 				
 				Rect rectRoiEye = new Rect(
 						(int) (x + (width * 0.0))	, (int) (y + (height * 0.25)),
@@ -657,6 +661,9 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					            	Bitmap bt3 = Bitmap.createBitmap(matDraw.cols(), matDraw.rows(), Config.RGB_565);
 					        		Utils.matToBitmap(matDraw, bt3);
 					        		imageView0.setImageBitmap(bt3);
+					        		
+					        		SaveImage(matDraw);
+
 					            }
 					        });
 					    }
@@ -675,5 +682,23 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		
 		
 		return mRgba;
+	}
+	
+	public void SaveImage (Mat mat) {
+
+		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGBA2BGR, 3);
+
+		Log.i(TAG,"onTouch event");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		String currentDateandTime = sdf.format(new Date());
+		String fileName = Environment.getExternalStorageDirectory().getPath() +
+		                  "/sample_picture_" + "faceTmp" + ".jpg";
+
+		Boolean bool = Highgui.imwrite(fileName, mat);
+
+		if (bool)
+			Log.i(TAG, "SUCCESS writing image to external storage");
+		else
+			Log.i(TAG, "Fail writing image to external storage");
 	}
 }
