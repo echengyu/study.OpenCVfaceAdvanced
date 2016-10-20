@@ -15,6 +15,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -38,6 +39,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -71,12 +73,11 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	private SeekBar seekBar3;
 	private TextView seekBarValue3;
 	private boolean onProgressChanged = true;
-	
-	private ImageView imageView0;
-	private Bitmap bt1;
-//	private Bitmap bt3;
-	
+		
+	private ImageView imageView0, imageView1, imageView2;
 	private TextView textView0, textView1, textView2, textView3, textView4, textView5;
+	
+	double target = 0;
 	
 	Point pointCenterEyeLeft = new Point();
 	Point pointCenterEyeRight = new Point();
@@ -224,6 +225,8 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		
 		imageView0 = (ImageView) findViewById(R.id.imageView0);
+		imageView1 = (ImageView) findViewById(R.id.imageView1);
+		imageView2 = (ImageView) findViewById(R.id.imageView2);
 		textView0 = (TextView) findViewById(R.id.textView0);
 		textView1 = (TextView) findViewById(R.id.textView1);
 		textView2 = (TextView) findViewById(R.id.textView2);
@@ -496,7 +499,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				y = rectArrayFace[i].y;
 				width = rectArrayFace[i].width;
 				height = rectArrayFace[i].height;
-				Log.e("rectArrayTmp["+i+"]", String.valueOf(x+", "+y+", "+width+", "+height));
+//				Log.e("rectArrayTmp["+i+"]", String.valueOf(x+", "+y+", "+width+", "+height));
 				
 				boolean findEye = true;
 				boolean findNose = true;
@@ -534,7 +537,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //				Imgproc.cvtColor(matRoiEye, matRoiEye, Imgproc.COLOR_GRAY2RGBA);
 				
 
-			
+				
 				matOfRectTmp = new MatOfRect();
 				mJavaDetectorEye.detectMultiScale(matRoiEye, matOfRectTmp, 1.2, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(height * 0.1, height * 0.1), new Size(width, height));
@@ -561,15 +564,16 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //									new Scalar(0, 0, 255, 255), 3);
 							
 						}
-//						Core.rectangle(matDraw, 
-//								new Point((rectArrayTmp[j].tl().x + (width * 0.0)), (rectArrayTmp[j].tl().y + (height * 0.25))),
-//								new Point((rectArrayTmp[j].br().x + (width * 0.0)), (rectArrayTmp[j].br().y + (height * 0.25))),
-//								new Scalar(0, 0, 255, 255), 3);
+						Core.rectangle(matDraw, 
+								new Point((rectArrayTmp[j].tl().x + (width * 0.0)), (rectArrayTmp[j].tl().y + (height * 0.25))),
+								new Point((rectArrayTmp[j].br().x + (width * 0.0)), (rectArrayTmp[j].br().y + (height * 0.25))),
+								new Scalar(0, 0, 255, 255), 3);
 					}
 				}else{
 					findEye = false;
 					Log.e("DetectorEye", "Not find eye");
 				}
+				
 				
 				
 				matOfRectTmp = new MatOfRect();
@@ -582,15 +586,16 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 								(rectArrayTmp[j].x + (width * 0.25) + ((rectArrayTmp[j].br().x - rectArrayTmp[j].tl().x) / 2)),
 								(rectArrayTmp[j].y + (height * 0.25) + ((rectArrayTmp[j].br().y - rectArrayTmp[j].tl().y) / 2)));
 						Core.circle(matDraw, pointCenterNose, 3, new Scalar(255, 255, 0, 255), -1);
-//						Core.rectangle(matDraw, 
-//								new Point((rectArrayTmp[j].tl().x + (width * 0.25)), (rectArrayTmp[j].tl().y + (height * 0.25))),
-//								new Point((rectArrayTmp[j].br().x + (width * 0.25)), (rectArrayTmp[j].br().y + (height * 0.25))),
-//								new Scalar(0, 255, 0, 255), 3);	
+						Core.rectangle(matDraw, 
+								new Point((rectArrayTmp[j].tl().x + (width * 0.25)), (rectArrayTmp[j].tl().y + (height * 0.25))),
+								new Point((rectArrayTmp[j].br().x + (width * 0.25)), (rectArrayTmp[j].br().y + (height * 0.25))),
+								new Scalar(0, 255, 0, 255), 3);	
 					}
 				}else{
 					findNose = false;
 					Log.e("DetectorNose", "Not find nose");
 				}
+				
 				
 				/*
 				matOfRectTmp = new MatOfRect();
@@ -645,31 +650,58 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					final double m3 = (pointCenterEyeRight.y - pointCenterNose.y) / (pointCenterEyeRight.x - pointCenterNose.x);
 					final double m4 = (pointCenterMouth.y - pointCenterEyeRight.y) / (pointCenterMouth.x - pointCenterEyeRight.x);
 					final double m5 = (pointCenterMouth.y - pointCenterNose.y) / (pointCenterMouth.x - pointCenterNose.x);
+					*/
 					
 					Thread t = new Thread() {
 					    public void run() {
 					        runOnUiThread(new Runnable() {
 					            @Override
 					            public void run() {
+					            	
+					            	/*
 					            	textView0.setText(String.valueOf(m0));
 					            	textView1.setText(String.valueOf(m1));
 					            	textView2.setText(String.valueOf(m2));
 					            	textView3.setText(String.valueOf(m3));
 					            	textView4.setText(String.valueOf(m4));
 					            	textView5.setText(String.valueOf(m5));
-					            						            	
-					            	Bitmap bt3 = Bitmap.createBitmap(matDraw.cols(), matDraw.rows(), Config.RGB_565);
-					        		Utils.matToBitmap(matDraw, bt3);
-					        		imageView0.setImageBitmap(bt3);
+					            	*/
+					            	
+					            	/*
+					            	imageView1.setImageResource(R.drawable.my);
+					            	imageView2.setImageResource(R.drawable.why);
+					            	
+					            	
+					            	Mat matTmp0 = new Mat();
+					            	Imgproc.resize(matDraw, matTmp0, new Size(100, 100));
+					            	Bitmap bitmapTmp0 = Bitmap.createBitmap(100, 100, Config.RGB_565);
+					        		Utils.matToBitmap(matTmp0, bitmapTmp0);
+					        		imageView0.setImageBitmap(bitmapTmp0);
+					            	
+					            	textView5.setText("matTmp: " +  String.valueOf(matTmp0.cols() + "' " + matTmp0.rows()));
+
+//					        		SaveImage(matTmp);
+					            	
+					            	Mat matTmp1 = new Mat();
+					            	Bitmap bitmapTmp1 = BitmapFactory.decodeResource(getResources(), R.drawable.my);
+					            	Utils.bitmapToMat(bitmapTmp1, matTmp1);
+					            	
+					            	Imgproc.cvtColor(matTmp0, matTmp0, Imgproc.COLOR_BGR2GRAY);
+					        		Imgproc.cvtColor(matTmp1, matTmp1, Imgproc.COLOR_BGR2GRAY);
 					        		
-					        		SaveImage(matDraw);
+					            	matTmp0.convertTo(matTmp0, CvType.CV_32F);
+					            	matTmp1.convertTo(matTmp1, CvType.CV_32F);
+					        		target = Imgproc.compareHist(matTmp0, matTmp1, Imgproc.CV_COMP_CORREL);
+					        		
+					        		textView0.setText("target: " +  String.valueOf(target));
+					        		*/
 
 					            }
 					        });
 					    }
 					};
 					t.start();
-					*/
+					
 					
 					
 				}else{
@@ -692,7 +724,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		String currentDateandTime = sdf.format(new Date());
 		String fileName = Environment.getExternalStorageDirectory().getPath() +
-		                  "/sample_picture_" + "faceTmp" + ".jpg";
+		                  "/sample_picture_" + "faceTmpNew" + ".jpg";
 
 		Boolean bool = Highgui.imwrite(fileName, mat);
 
