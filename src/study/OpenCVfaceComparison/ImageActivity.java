@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
@@ -17,6 +18,8 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -109,7 +112,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 				try {
 					// load cascade file from application resources
 					InputStream isFace 	= getResources().openRawResource(R.raw.lbpcascade_frontalface);
-					InputStream isEye 	= getResources().openRawResource(R.raw.haarcascade_eye_tree_eyeglasses);
+					InputStream isEye 	= getResources().openRawResource(R.raw.haarcascade_eye);
 					InputStream isNose 	= getResources().openRawResource(R.raw.haarcascade_mcs_nose);
 					InputStream isMouth = getResources().openRawResource(R.raw.haarcascade_mcs_mouth);
 
@@ -455,7 +458,8 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		}
 		*/
 		
-		
+		/********************************************************************************/
+						
 //		Mat matPicture = new Mat();
 //		bt1 = BitmapFactory.decodeResource(getResources(), R.drawable.face);
 //		Utils.bitmapToMat(bt1, matPicture);
@@ -476,6 +480,18 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //		Utils.matToBitmap(matPicture, bt3);
 //		imageView0.setImageBitmap(bt3);
 		
+		/********************************************************************************/
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/********************************************************************************/
+		
 		MatOfRect matOfRectTmp;
 		Rect[] rectArrayFace;
 		int width;
@@ -487,12 +503,12 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		matOfRectTmp = new MatOfRect();
 		mJavaDetectorFace.detectMultiScale(dRgba, matOfRectTmp, 1.1, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
                 new Size((dRgba.rows() * 0.1), (dRgba.rows() * 0.1)),
-                new Size((dRgba.rows() * 1.0), (dRgba.rows() * 1.0)));
+                new Size());
 		rectArrayFace = matOfRectTmp.toArray();		
-//		for (int i = 0; i < rectArrayTmp.length; i++){
+		
 		
 		if(rectArrayFace.length != 0){
-		
+//			for (int i = 0; i < rectArrayFace.length; i++){
 			for (int i = 0; i < 1; i++){
 				
 				x = rectArrayFace[i].x;
@@ -539,8 +555,8 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 
 				
 				matOfRectTmp = new MatOfRect();
-				mJavaDetectorEye.detectMultiScale(matRoiEye, matOfRectTmp, 1.2, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-		                new Size(height * 0.1, height * 0.1), new Size(width, height));
+				mJavaDetectorEye.detectMultiScale(matRoiEye, matOfRectTmp, 1.1, 3, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+		                new Size(height * 0.09, height * 0.09), new Size(width, height));
 				rectArrayTmp = matOfRectTmp.toArray();		
 				if(rectArrayTmp.length == 2){
 					for (int j = 0; j < 2; j++){
@@ -564,20 +580,19 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //									new Scalar(0, 0, 255, 255), 3);
 							
 						}
-						Core.rectangle(matDraw, 
-								new Point((rectArrayTmp[j].tl().x + (width * 0.0)), (rectArrayTmp[j].tl().y + (height * 0.25))),
-								new Point((rectArrayTmp[j].br().x + (width * 0.0)), (rectArrayTmp[j].br().y + (height * 0.25))),
-								new Scalar(0, 0, 255, 255), 3);
+//						Core.rectangle(matDraw, 
+//								new Point((rectArrayTmp[j].tl().x + (width * 0.0)), (rectArrayTmp[j].tl().y + (height * 0.25))),
+//								new Point((rectArrayTmp[j].br().x + (width * 0.0)), (rectArrayTmp[j].br().y + (height * 0.25))),
+//								new Scalar(0, 0, 255, 255), 3);
 					}
 				}else{
-					findEye = false;
+//					findEye = false;
 					Log.e("DetectorEye", "Not find eye");
 				}
 				
 				
-				
 				matOfRectTmp = new MatOfRect();
-				mJavaDetectorNose.detectMultiScale(matRoiNose, matOfRectTmp, 1.2, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+				mJavaDetectorNose.detectMultiScale(matRoiNose, matOfRectTmp, 1.1, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(height * 0.2, height * 0.2), new Size(width, height));
 				rectArrayTmp = matOfRectTmp.toArray();		
 				if(rectArrayTmp.length != 0){
@@ -586,20 +601,20 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 								(rectArrayTmp[j].x + (width * 0.25) + ((rectArrayTmp[j].br().x - rectArrayTmp[j].tl().x) / 2)),
 								(rectArrayTmp[j].y + (height * 0.25) + ((rectArrayTmp[j].br().y - rectArrayTmp[j].tl().y) / 2)));
 						Core.circle(matDraw, pointCenterNose, 3, new Scalar(255, 255, 0, 255), -1);
-						Core.rectangle(matDraw, 
-								new Point((rectArrayTmp[j].tl().x + (width * 0.25)), (rectArrayTmp[j].tl().y + (height * 0.25))),
-								new Point((rectArrayTmp[j].br().x + (width * 0.25)), (rectArrayTmp[j].br().y + (height * 0.25))),
-								new Scalar(0, 255, 0, 255), 3);	
+//						Core.rectangle(matDraw, 
+//								new Point((rectArrayTmp[j].tl().x + (width * 0.25)), (rectArrayTmp[j].tl().y + (height * 0.25))),
+//								new Point((rectArrayTmp[j].br().x + (width * 0.25)), (rectArrayTmp[j].br().y + (height * 0.25))),
+//								new Scalar(0, 255, 0, 255), 3);	
 					}
 				}else{
-					findNose = false;
+//					findNose = false;
 					Log.e("DetectorNose", "Not find nose");
 				}
 				
 				
-				/*
+				
 				matOfRectTmp = new MatOfRect();
-				mJavaDetectorMouth.detectMultiScale(matRoiMouth, matOfRectTmp, 1.6, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+				mJavaDetectorMouth.detectMultiScale(matRoiMouth, matOfRectTmp, 1.1, 6, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 		                new Size(height * 0.05, height * 0.05), new Size(height * 0.7, height * 0.7));
 				rectArrayTmp = matOfRectTmp.toArray();		
 				if(rectArrayTmp.length != 0){
@@ -614,33 +629,29 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 //								new Scalar(255, 0, 0, 255), 3);
 					}
 				}else{
-					findMouth = false;
+//					findMouth = false;
 					Log.e("DetectorMouth", "Not find mouth");
 				}
+							
+				/*
+				matRoiEye.copyTo(mRgba.submat(rectRoiEye));
+				matRoiNose.copyTo(mRgba.submat(rectRoiNose));
+				matRoiMouth.copyTo(mRgba.submat(rectRoiMouth));
+				matDraw.copyTo(mRgba.submat(rectRoiMaster));
 				*/
-								
-//				Core.line(matDraw, pointCenterEyeLeft, pointCenterEyeRight, new Scalar(255, 255, 153, 255), 3);
-//				Core.line(matDraw, pointCenterEyeLeft, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
-//				Core.line(matDraw, pointCenterEyeLeft, pointCenterNose, new Scalar(255, 255, 153, 255), 3);
-//				Core.line(matDraw, pointCenterEyeRight, pointCenterNose, new Scalar(255, 255, 153, 255), 3);
-//				Core.line(matDraw, pointCenterEyeRight, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
-//				Core.line(matDraw, pointCenterNose, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
-				
-//				matRoiEye.copyTo(mRgba.submat(rectRoiEye));
-//				matRoiNose.copyTo(mRgba.submat(rectRoiNose));
-//				matRoiMouth.copyTo(mRgba.submat(rectRoiMouth));
-//				matDraw.copyTo(mRgba.submat(rectRoiMaster));
-				
-//				Core.rectangle(mRgba, rectArrayFace[i].tl(), rectArrayFace[i].br(), new Scalar(255, 0, 255, 255), 3);
 				
 				if(findEye && findNose && findMouth){
 					Core.rectangle(mRgba, rectArrayFace[i].tl(), rectArrayFace[i].br(), new Scalar(255, 0, 255, 255), 3);
-//					Core.line(matDraw, pointCenterEyeLeft, pointCenterEyeRight, new Scalar(255, 255, 153, 255), 3);
-//					Core.line(matDraw, pointCenterEyeLeft, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
-//					Core.line(matDraw, pointCenterEyeLeft, pointCenterNose, new Scalar(255, 255, 153, 255), 3);
-//					Core.line(matDraw, pointCenterEyeRight, pointCenterNose, new Scalar(255, 255, 153, 255), 3);
-//					Core.line(matDraw, pointCenterEyeRight, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
-//					Core.line(matDraw, pointCenterNose, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
+					
+					/*
+					Core.line(matDraw, pointCenterEyeLeft, pointCenterEyeRight, new Scalar(255, 255, 153, 255), 3);
+					Core.line(matDraw, pointCenterEyeLeft, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
+					Core.line(matDraw, pointCenterEyeLeft, pointCenterNose, new Scalar(255, 255, 153, 255), 3);
+					Core.line(matDraw, pointCenterEyeRight, pointCenterNose, new Scalar(255, 255, 153, 255), 3);
+					Core.line(matDraw, pointCenterEyeRight, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
+					Core.line(matDraw, pointCenterNose, pointCenterMouth, new Scalar(255, 255, 153, 255), 3);
+					*/
+					
 					matDraw.copyTo(mRgba.submat(rectRoiMaster));
 					
 					/*
@@ -651,6 +662,10 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					final double m4 = (pointCenterMouth.y - pointCenterEyeRight.y) / (pointCenterMouth.x - pointCenterEyeRight.x);
 					final double m5 = (pointCenterMouth.y - pointCenterNose.y) / (pointCenterMouth.x - pointCenterNose.x);
 					*/
+					
+					final double theta = Math.atan((pointCenterEyeRight.y - pointCenterEyeLeft.y) / (pointCenterEyeRight.x - pointCenterEyeLeft.x));
+					Log.e(TAG, "theta: " + String.valueOf(angleOf(pointCenterEyeRight, pointCenterEyeLeft)));
+					
 					
 					Thread t = new Thread() {
 					    public void run() {
@@ -667,9 +682,11 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					            	textView5.setText(String.valueOf(m5));
 					            	*/
 					            	
-					            	/*
+					            	
 					            	imageView1.setImageResource(R.drawable.my);
-					            	imageView2.setImageResource(R.drawable.why);
+//					            	imageView2.setImageResource(R.drawable.why);
+					            	
+				
 					            	
 					            	
 					            	Mat matTmp0 = new Mat();
@@ -678,6 +695,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					        		Utils.matToBitmap(matTmp0, bitmapTmp0);
 					        		imageView0.setImageBitmap(bitmapTmp0);
 					            	
+					            	/*
 					            	textView5.setText("matTmp: " +  String.valueOf(matTmp0.cols() + "' " + matTmp0.rows()));
 
 //					        		SaveImage(matTmp);
@@ -695,7 +713,57 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					        		
 					        		textView0.setText("target: " +  String.valueOf(target));
 					        		*/
+					        		
+					        		Mat src = new Mat();
+					        		matDraw.copyTo(src);
+					        		
+//					        		Mat dst1 = new Mat(src.rows(), src.cols(), src.type());
+//					        		Mat dst2 = new Mat(src.rows(), src.cols(), src.type());
+					        		
+					        		Mat dst1 = new Mat();
+					        		Mat dst2 = new Mat();
 
+					        		
+					        		List<Point> srcTriList = new ArrayList<Point>();
+					        		srcTriList.add(new Point(0, 0));
+					        		srcTriList.add(new Point((src.cols() - 1), 0));
+					        		srcTriList.add(new Point(0, (src.rows() - 1)));
+					        		MatOfPoint2f srcTri = new MatOfPoint2f();
+					        		srcTri.fromList(srcTriList);
+					        		
+					        		
+					        		List<Point> dstTriList = new ArrayList<Point>();
+					        		dstTriList.add(new Point(0, (src.rows() * 0.3)));
+					        		dstTriList.add(new Point((src.cols() * 0.8), 0));
+					        		dstTriList.add(new Point((src.cols() * 0.1), (src.rows() * 0.9)));
+					        		MatOfPoint2f dstTri = new MatOfPoint2f();
+					        		srcTri.fromList(dstTriList);
+					        		
+					     
+//					        		Mat warp_mat = Imgproc.getAffineTransform(srcTri, dstTri);
+//					        		Imgproc.warpAffine(src, dst1, warp_mat, dst1.size());
+					        		
+					        		//設定旋轉中心、旋轉角度和縮放倍率
+					        	    Point center = new Point((dst2.cols() / 2), (dst2.rows() / 2));
+					        	    double angle = 180 - angleOf(pointCenterEyeRight, pointCenterEyeLeft);
+					        	    double scale = 1;	
+					                
+					        	    Mat rot_mat = Imgproc.getRotationMatrix2D(pointCenterEyeRight, angle, scale);
+					        	    Imgproc.warpAffine(src, dst2, rot_mat, dst2.size());
+					        	    
+					        	    
+
+//					            	Bitmap bitmapTmp3 = Bitmap.createBitmap(dst1.cols(), dst1.rows(), Config.RGB_565);
+//					        		Utils.matToBitmap(dst1, bitmapTmp3);
+//					        		imageView1.setImageBitmap(bitmapTmp3);
+					        	    
+
+					            	Bitmap bitmapTmp4 = Bitmap.createBitmap(dst2.cols(), dst2.rows(), Config.RGB_565);
+					        		Utils.matToBitmap(dst2, bitmapTmp4);
+					        		imageView2.setImageBitmap(bitmapTmp4);
+					        	    
+
+					        		
 					            }
 					        });
 					    }
@@ -711,10 +779,11 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			}
 		}
 		
-		
-		
+
 		return mRgba;
 	}
+	
+	
 	
 	public void SaveImage (Mat mat) {
 
@@ -733,4 +802,15 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		else
 			Log.i(TAG, "Fail writing image to external storage");
 	}
+	
+	public static double angleOf(Point p1, Point p2) {
+	    // NOTE: Remember that most math has the Y axis as positive above the X.
+	    // However, for screens we have Y as positive below. For this reason, 
+	    // the Y values are inverted to get the expected results.
+	    final double deltaY = (p1.y - p2.y);
+	    final double deltaX = (p2.x - p1.x);
+	    final double result = Math.toDegrees(Math.atan2(deltaY, deltaX)); 
+	    return (result < 0) ? (360d + result) : result;
+	}
+
 }
