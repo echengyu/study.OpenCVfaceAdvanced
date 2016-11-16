@@ -1,0 +1,3 @@
+ipconfig /all
+pause
+cmd

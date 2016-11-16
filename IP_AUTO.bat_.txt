@@ -1,0 +1,3 @@
+netsh int ip set address "local area connection" dhcp
+netsh int ip show config
+pause

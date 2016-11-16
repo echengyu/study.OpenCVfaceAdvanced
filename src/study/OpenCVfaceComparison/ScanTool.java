@@ -16,13 +16,16 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 
 public class ScanTool extends JavaCameraView implements PictureCallback {
 	

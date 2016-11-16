@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
     <string name="app_name">study.OpenCVfaceComparison</string>
+    <string name="image_all_clear">Image all clear</string>
 </resources>
