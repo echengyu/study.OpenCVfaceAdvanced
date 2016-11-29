@@ -7,11 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import javax.security.auth.Subject;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -21,46 +18,34 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfFloat;
-import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.objdetect.CascadeClassifier;
 
 import com.opencv_application.Opencv_Application;
 
-import android.R.bool;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.ContactsContract.Contacts.Data;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View.OnClickListener;
 import android.view.KeyEvent;
-import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -102,17 +87,17 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
     
     private ImageButton mImageBtn_lens;
     
-    private SQLite sqlite; //SQLite資料庫
-    private double target_select = 0.0; //相似度數值
-    private String target_str = "0"; //相似度數值
+    private SQLite sqlite; 					// SQLite資料庫
+    private double target_select = 0.0;		// 相似度數值
+    private String target_str = "0"; 		// 相似度數值
     private Bitmap mBitmap11 = null;
     private String str_ImageName = "";
     private String str_EditName = "";
     
-    private EditText edt_ImageName; //填寫名字
-    private TextView tv_ImageName; //顯示名字
-    private TextView tv_ImageSimilarity; //顯示相似度
-    private TextView tv_matTmp; //tv_matTmp;
+    private EditText edt_ImageName; 		// 填寫名字
+    private TextView tv_ImageName; 			// 顯示名字
+    private TextView tv_ImageSimilarity; 	// 顯示相似度
+    private TextView tv_matTmp; 			// tv_matTmp;
     
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -293,42 +278,42 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					Mat mat11 = new Mat();
 					Mat mat22 = new Mat();
 					
-					// 获得图片的宽高  
+					// 獲得圖片的寬高  
 				    int width1 = 0, height1 = 0;
 				    int width2 = 0, height2 = 0;
-				    // 设置想要的大小  
+				    // 設置想要的大小  
 				    int newWidth = 0, newHeight = 0;
-				    // 计算缩放比例  
+				    // 計算縮放比例  
 				    float scaleWidth1 = 0, scaleHeight1 = 0;
 				    float scaleWidth2 = 0, scaleHeight2 = 0;
-				    // 取得想要缩放的matrix参数  
+				    // 取得想要縮放的matrix參數  
 				    Matrix matrix1 = null;
 				    Matrix matrix2 = null;
-				    // 得到新的图片 
+				    // 得到新的圖片 
 				    Bitmap newbitmap1 = null;
 				    Bitmap newbitmap2 = null;
 
 					if (mBitmap1 != null && mBitmap2 != null) {
 						
-						// 获得图片的宽高  
+						// 獲得圖片的寬高  
 					    width1 = mBitmap1.getWidth();  
 					    height1 = mBitmap1.getHeight();
 					    width2 = mBitmap2.getWidth();  
 					    height2 = mBitmap2.getHeight();
-					    // 设置想要的大小  
+					    // 設置想要的大小  
 					    newWidth = 300;  
 					    newHeight = 300;
-					    // 计算缩放比例  
+					    // 計算縮放比例  
 					    scaleWidth1 = ((float) newWidth) / width1;  
 					    scaleHeight1 = ((float) newHeight) / height1; 
 					    scaleWidth2 = ((float) newWidth) / width2;  
 					    scaleHeight2 = ((float) newHeight) / height2;
-					    // 取得想要缩放的matrix参数  
+					    // 取得想要縮放的matrix參數  
 					    matrix1 = new Matrix();
 					    matrix2 = new Matrix();
 					    matrix1.postScale(scaleWidth1, scaleHeight1);
 					    matrix2.postScale(scaleWidth2, scaleHeight2);
-					    // 得到新的图片  
+					    // 得到新的圖片  
 					    newbitmap1 = Bitmap.createBitmap(mBitmap1, 0, 0, width1, height1, matrix1, true);
 					    newbitmap2 = Bitmap.createBitmap(mBitmap2, 0, 0, width2, height2, matrix2, true);
 
@@ -468,7 +453,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 			}
 		});
         
-        // 储存Button
+        // 儲存Button
         mBtn_capture.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
@@ -591,7 +576,7 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String currentDateandTime = sdf.format(new Date());
 		
-		// 首先保存图片
+		// 首先保存圖片
 	    File appDir = new File(Environment.getExternalStorageDirectory(), "sample_picture"+"_faceTmpNew");
 	    if (!appDir.exists()) {
 	        appDir.mkdir();
@@ -609,21 +594,21 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 	        e.printStackTrace();
 		}
 
-//	    // 其次把文件插入到系统图库
+//	    // 其次把文件插入到系統圖庫
 //	    try {
 //	        MediaStore.Images.Media.insertImage(ImageActivity.this.getContentResolver(),
 //					file.getAbsolutePath(), fileName, null);
 //	    } catch (FileNotFoundException e) {
 //	        e.printStackTrace();
 //	    }
-	    // 最后通知图库更新
+	    // 最後通知圖庫更新
 	    ImageActivity.this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + "/sdcard+/sample_picture"+"_faceTmpNew/"+currentDateandTime+".jpg")));
 		
 		sqlite.insert("1", currentDateandTime, edt_ImageName);
 	}
  
     /** 
-     * 比较来个矩阵的相似度 
+     * 比較來個矩陣的相似度 
      * @param srcMat 
      * @param desMat 
      */  
@@ -688,7 +673,6 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 					}
 				}
 			}		
-			
 		}
 	}
 
@@ -708,22 +692,18 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
 		int y;
 		
 		if (((Opencv_Application)getApplication()).Bool_lens) {
-			
-//			Core.flip(dRgba, mRgba, 1);//翻轉(flipCode:(0:水平軸翻轉(垂直翻轉)、1:垂直軸的翻轉(水平翻轉)、-1:兩軸的翻轉))
-			
+			//翻轉(flipCode:(0:水平軸翻轉(垂直翻轉)、1:垂直軸的翻轉(水平翻轉)、-1:兩軸的翻轉))
+//			Core.flip(dRgba, mRgba, 1);
 			if (((Opencv_Application)getApplicationContext()).Int_frontlens_adjustment == 1) {	
-				
-				Core.flip(dRgba, mRgba, 0);//翻轉(flipCode:(0:水平軸翻轉(垂直翻轉))
-			
+				// 翻轉(flipCode:(0:水平軸翻轉(垂直翻轉))
+				Core.flip(dRgba, mRgba, 0);
 			} else if (((Opencv_Application)getApplicationContext()).Int_frontlens_adjustment == 2) {
-				
-				Core.flip(dRgba, mRgba, 1);//翻轉(flipCode:(1:垂直軸的翻轉(水平翻轉))
-			
+				// 翻轉(flipCode:(1:垂直軸的翻轉(水平翻轉))
+				Core.flip(dRgba, mRgba, 1);
 			} else {
-				
-				Core.flip(dRgba, mRgba, -1);//翻轉(flipCode:(-1:兩軸的翻轉))
-			}
-									
+				// 翻轉(flipCode:(-1:兩軸的翻轉))
+				Core.flip(dRgba, mRgba, -1);
+			}					
 		}
 		
 		matOfRectTmp = new MatOfRect();
@@ -731,7 +711,6 @@ public class ImageActivity extends Activity implements CvCameraViewListener2 {
                 new Size((dRgba.rows() * 0.1), (dRgba.rows() * 0.1)),
                 new Size());
 		rectArrayFace = matOfRectTmp.toArray();		
-		
 		
 		if(rectArrayFace.length != 0){
 //			for (int i = 0; i < rectArrayFace.length; i++){

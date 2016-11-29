@@ -11,13 +11,13 @@ public class SQLite {
 	// ListView push_data_list;
 	ArrayAdapter<String> listAdapter;
 
-	private SQLiteDatabase mydb = null; // 声明数据库
-	private final static String DATABASE_NAME = "faceTmpNew_sqlite.db"; // 数据库名称
-	String TABLE_NAME = "firstTable"; // 表名称
-	String CREATE_TABLE = "create table firstTable" + "(id TEXT," + "Data TEXT," + "Name TEXT)"; // 创建表的SQL语句
+	private SQLiteDatabase mydb = null; // 聲明數據庫
+	private final static String DATABASE_NAME = "faceTmpNew_sqlite.db"; // 數據庫名稱
+	String TABLE_NAME = "firstTable"; // 表名稱
+	String CREATE_TABLE = "create table firstTable" + "(id TEXT," + "Data TEXT," + "Name TEXT)"; // 創建表的SQL語句
 
 	private final static String ID = "id"; // ID
-	private final static String Data = "Data"; // 数据项
+	private final static String Data = "Data"; // 數據項
 	private final static String Name = "Name"; // 名稱
 	private static final int MODE_PRIVATE = 0;
 
@@ -47,7 +47,7 @@ public class SQLite {
 
 		try {
 
-			mydb.execSQL(CREATE_TABLE); // 创建表
+			mydb.execSQL(CREATE_TABLE); // 創建表
 
 		} catch (Exception e) {
 
@@ -57,7 +57,7 @@ public class SQLite {
 	// 開啟資料庫
 	public void database() {
 
-		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打开数据库
+		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打開數據庫
 		// showData();
 		mydb.close();
 	}
@@ -65,13 +65,13 @@ public class SQLite {
 	// 插入數據
 	public void insert(String id, String data, String name) {
 
-		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打开数据库
+		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打開數據庫
 
 		cv = new ContentValues();
-		cv.put(ID, id); // 名称
+		cv.put(ID, id); // 名稱
 		cv.put(Data, data); // Data
 		cv.put(Name, name); // name
-		mydb.insert(TABLE_NAME, null, cv); // 插入数据
+		mydb.insert(TABLE_NAME, null, cv); // 插入數據
 
 		// showData();
 		mydb.close();
@@ -83,19 +83,19 @@ public class SQLite {
 
 		if (data.equals("1")) {
 			
-			mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打开数据库
+			mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打開數據庫
 
 			String whereClause = "ID=?";
 			String[] whereArgs = { data };
-			mydb.delete(TABLE_NAME, whereClause, whereArgs); // 删除数据
+			mydb.delete(TABLE_NAME, whereClause, whereArgs); // 刪除數據
 			
 		} else {
 			
-			mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打开数据库
+			mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打開數據庫
 
 			String whereClause = "Data=?";
 			String[] whereArgs = { data };
-			mydb.delete(TABLE_NAME, whereClause, whereArgs); // 删除数据
+			mydb.delete(TABLE_NAME, whereClause, whereArgs); // 刪除數據
 
 		}
 		
@@ -106,7 +106,7 @@ public class SQLite {
 	// 修改數據
 	public void updata(String id, String data, String name) {
 
-		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打开数据库
+		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打開數據庫
 
 		cv = new ContentValues();  
 		cv.put("ID", id);
@@ -114,7 +114,7 @@ public class SQLite {
 		cv.put("Name", name);
 		String whereClause = "id=?";
 		String[] whereArgs = { id };
-		mydb.update(TABLE_NAME,cv, whereClause, whereArgs); // 删除数据
+		mydb.update(TABLE_NAME,cv, whereClause, whereArgs); // 刪除數據
 
 		// showData();
 		mydb.close();
@@ -128,25 +128,25 @@ public class SQLite {
 		String data_Inquire = "";
 		String name_Inquire = "";
 
-		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打开数据库
+		mydb = context.openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);// 打開數據庫
 
-		String selection = "id=?"; // 查询条件
+		String selection = "id=?"; // 查詢條件
 		String[] selectionArgs = { id };
-		cursor = mydb.query(TABLE_NAME, new String[] { ID, Data, Name }, selection, selectionArgs, null, null, null); // 查询数据
+		cursor = mydb.query(TABLE_NAME, new String[] { ID, Data, Name }, selection, selectionArgs, null, null, null); // 查詢數據
 		if (cursor != null && count >= 0) {
-			if (cursor.moveToFirst()) // 移动到第一个
+			if (cursor.moveToFirst()) // 移動到第一個
 			{
 				do {
-					String Id = cursor.getString(0); // 获取ID
-					String Data = cursor.getString(1); // 获取Data
-					String Name = cursor.getString(2); // 获取Data
+					String Id = cursor.getString(0); // 獲取ID
+					String Data = cursor.getString(1); // 獲取Data
+					String Name = cursor.getString(2); // 獲取Data
 
 					// this.listAdapter.add(Data);
 					id_Inquire = Id + ",/" + id_Inquire;
 					data_Inquire = Data + ",/" + data_Inquire;
 					name_Inquire = Name + ",/" + name_Inquire;
 
-				} while (cursor.moveToNext()); // 移动到下一个
+				} while (cursor.moveToNext()); // 移動到下一個
 			}
 		}
 
@@ -159,23 +159,23 @@ public class SQLite {
 		mydb.close();
 	}
 
-	public void showData() // 显示数据
+	public void showData() // 顯示數據
 	{
 
 		cursor = mydb.query(TABLE_NAME, new String[] { ID, Data, Name }, null, null, null, null, null);
-		count = cursor.getCount(); // 获取个数
+		count = cursor.getCount(); // 獲取個數
 		if (cursor != null && count >= 0) {
-			if (cursor.moveToFirst()) // 移动到第一个
+			if (cursor.moveToFirst()) // 移動到第一個
 			{
 				do {
-					String id = cursor.getString(0); // 获取ID
-					String Data = cursor.getString(1); // 获取Data
-					String Name = cursor.getString(2); // 获取Data
+					String id = cursor.getString(0); // 獲取ID
+					String Data = cursor.getString(1); // 獲取Data
+					String Name = cursor.getString(2); // 獲取Data
 
 					// this.listAdapter.add(Data);
 					this.onMessageRecive.onReceive(id, Data, Name);
 
-				} while (cursor.moveToNext()); // 移动到下一个
+				} while (cursor.moveToNext()); // 移動到下一個
 			}
 		}
 	}
